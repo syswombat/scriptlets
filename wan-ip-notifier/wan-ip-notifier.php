@@ -10,12 +10,15 @@
  * Requires PHP 7+
  *
  * Usage: php wan-ip-notifier.php <bot_token> <chat_id> [<wan-ip-history.csv>]
+ * cron job all 15 minutes
+ * /15 * * * * /wan-ip-notifier.php 
  *
  *   bot_token:          Your bot's token as provided by @BotFather
  *   chat_id:            Your Telegram user id. (Send `/whoami` to @PHP_Telegram_Bot)
  *   wan-ip-history.csv: File to log all IP changes to.
  */
-
+$telegram_bot_token = 
+$telegram_chat_id   = 
 $bot_token = $argv[1] ?? $_SERVER['HTTP_X_BOT_TOKEN'] ?? null;
 $chat_id   = $argv[2] ?? $_SERVER['HTTP_X_CHAT_ID'] ?? null;
 $csv_path  = ($argv[3] ?? null) ?: __DIR__ . '/wan-ip-history.csv';
