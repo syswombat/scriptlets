@@ -4,10 +4,10 @@
  * (c) Armando 'noplanman' Lüscher <armando@noplanman.ch>
  *
  * scriptlet: wan-ip-notifier
- * version:   1.0.0
+ * version:   1.1.0
  *
  * This scriptlet notifies a change in your WAN IP via a Telegram Bot message.
- * Requires PHP 7+
+ * Requires PHP 5.3+
  *
  * Usage: php wan-ip-notifier.php <bot_token> <chat_id> [<wan-ip-history.csv>]
  *
@@ -16,9 +16,12 @@
  *   wan-ip-history.csv: File to log all IP changes to.
  */
 
-$bot_token = $argv[1] ?? $_SERVER['HTTP_X_BOT_TOKEN'] ?? null;
-$chat_id   = $argv[2] ?? $_SERVER['HTTP_X_CHAT_ID'] ?? null;
-$csv_path  = ($argv[3] ?? null) ?: __DIR__ . '/wan-ip-history.csv';
+// Make sure we have a valid timezone set.
+date_default_timezone_set('UTC');
+
+$bot_token = isset($argv[1]) ? $argv[1] : (isset($_SERVER['HTTP_X_BOT_TOKEN']) ? $_SERVER['HTTP_X_BOT_TOKEN'] : null);
+$chat_id   = isset($argv[2]) ? $argv[2] : (isset($_SERVER['HTTP_X_CHAT_ID']) ? $_SERVER['HTTP_X_CHAT_ID'] : null);
+$csv_path  = (isset($argv[3]) ? $argv[3] : null) ?: __DIR__ . '/wan-ip-history.csv';
 
 if (empty($bot_token) || empty($chat_id)) {
     die('Bot Token and Chat ID required.' . PHP_EOL);
@@ -31,7 +34,7 @@ $csv_file = fopen($csv_path, 'ab+');
 $csv = array_map('str_getcsv', file($csv_path));
 
 // Set CSV headers.
-empty($csv) && fputcsv($csv_file, ['datetime', 'ip']);
+empty($csv) && fputcsv($csv_file, array('datetime', 'ip'));
 
 // Get latest entry.
 list($last_datetime, $last_ip) = end($csv);
@@ -42,7 +45,7 @@ $ip = file_get_contents('http://ipecho.net/plain');
 // Check if we have a new IP.
 if ($ip !== $last_ip && filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
     // Add new IP to CSV.
-    fputcsv($csv_file, [$datetime = date('d.m.Y H:i:s'), $ip]);
+    fputcsv($csv_file, array($datetime = date('d.m.Y H:i:s'), $ip));
 
     // Send message to Telegram chat.
     $text = "New IP: {$ip} ({$datetime})";

@@ -16,3 +16,10 @@ $ curl --request GET \
   --header 'x-bot-token: <bot_token>' \
   --header 'x-chat-id: <chat_id>'
 ``` 
+
+### Setting up cronjob
+
+Add the following (with your timing preference) to your crontab (`$ crontab -e`):
+```bash
+* * * * * php /path/to/wan-ip-notifier.php <bot_token> <chat_id>
+```
